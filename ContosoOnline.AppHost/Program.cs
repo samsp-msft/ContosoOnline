@@ -13,11 +13,14 @@ var orderapi = builder.AddProject<Projects.ContosoOnline_OrderApi>("orderapi")
                       .WaitFor(ordersDb);
 
 var frontend = builder.AddProject<Projects.ContosoOnline_Web>("frontend")
+                      .WaitFor(orderapi)
+                      .WaitFor(catalogapi)
                       .WithReference(catalogapi)
                       .WithReference(orderapi);
 
 var orderprocessor = builder.AddProject<Projects.ContosoOnline_Workers_OrderProcessor>("orderprocessor")
                             .WaitFor(orderapi)
+                            .WaitFor(catalogapi)
                             .WithReference(catalogapi)
                             .WithReference(orderapi);
 
