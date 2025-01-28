@@ -8,16 +8,16 @@ public static class ProductEndpoints
 {
     public static void MapProductEndpoints (this IEndpointRouteBuilder routes)
     {
-        var group = routes.MapGroup("/products").WithTags(nameof(Product));
+        var productsGroup = routes.MapGroup("/products").WithTags(nameof(Product));
 
-        group.MapGet("/", async (CatalogDbContext db) =>
+        productsGroup.MapGet("/", async (CatalogDbContext db) =>
         {
             return await db.Products.ToListAsync();
         })
         .WithName("GetAllProducts")
         .WithOpenApi();
 
-        group.MapGet("/{id}", async Task<Results<Ok<Product>, NotFound>> (Guid id, CatalogDbContext db) =>
+        productsGroup.MapGet("/{id}", async Task<Results<Ok<Product>, NotFound>> (Guid id, CatalogDbContext db) =>
         {
             return await db.Products.AsNoTracking()
                 .FirstOrDefaultAsync(model => model.Id == id)
@@ -28,7 +28,7 @@ public static class ProductEndpoints
         .WithName("GetProductById")
         .WithOpenApi();
 
-        group.MapPut("/{id}", async Task<Results<Ok, NotFound>> (Guid id, Product product, CatalogDbContext db) =>
+        productsGroup.MapPut("/{id}", async Task<Results<Ok, NotFound>> (Guid id, Product product, CatalogDbContext db) =>
         {
             var affected = await db.Products
                 .Where(model => model.Id == id)
@@ -43,7 +43,7 @@ public static class ProductEndpoints
         .WithName("UpdateProduct")
         .WithOpenApi();
 
-        group.MapPost("/", async (Product product, CatalogDbContext db) =>
+        productsGroup.MapPost("/", async (Product product, CatalogDbContext db) =>
         {
             db.Products.Add(product);
             await db.SaveChangesAsync();
@@ -52,7 +52,7 @@ public static class ProductEndpoints
         .WithName("CreateProduct")
         .WithOpenApi();
 
-        group.MapDelete("/{id}", async Task<Results<Ok, NotFound>> (Guid id, CatalogDbContext db) =>
+        productsGroup.MapDelete("/{id}", async Task<Results<Ok, NotFound>> (Guid id, CatalogDbContext db) =>
         {
             var affected = await db.Products
                 .Where(model => model.Id == id)

@@ -16,7 +16,7 @@ public class BogusFakeCatalogDatabaseSeeder : DatabaseSeeder<CatalogDbContext>
                             .RuleFor(x => x.Description, f => f.Commerce.ProductDescription())
                             .RuleFor(x => x.Price, f => f.Random.Decimal(min: 0, max: 100));
 
-            var products = faker.Generate(20);
+            var products = faker.Generate(40);
             dbContext.Products.AddRange(products);
             await dbContext.SaveChangesAsync();
         }

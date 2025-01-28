@@ -8,16 +8,17 @@ public static class OrderEndpoints
 {
     public static void MapOrderEndpoints (this IEndpointRouteBuilder routes)
     {
-        var group = routes.MapGroup("/orders").WithTags(nameof(Order));
+        var ordersGroup = routes.MapGroup("/orders").WithTags(nameof(Order));
 
-        group.MapGet("/", async (OrderDbContext db) =>
+        ordersGroup.MapGet("/", async (OrderDbContext db) =>
         {
+            if (new Random().Next(100) > 70) { Task.Delay(15000).Wait(); }
             return await db.Order.ToListAsync();
         })
         .WithName("GetAllOrders")
         .WithOpenApi();
 
-        group.MapGet("/{id}", async Task<Results<Ok<Order>, NotFound>> (Guid id, OrderDbContext db) =>
+        ordersGroup.MapGet("/{id}", async Task<Results<Ok<Order>, NotFound>> (Guid id, OrderDbContext db) =>
         {
             return await db.Order.AsNoTracking()
                 .FirstOrDefaultAsync(model => model.Id == id)
@@ -28,19 +29,20 @@ public static class OrderEndpoints
         .WithName("GetOrderById")
         .WithOpenApi();
 
-        group.MapPut("/{id}", async Task<Results<Ok, NotFound>> (Guid id, Order order, OrderDbContext db) =>
+        ordersGroup.MapPut("/{id}", async Task<Results<Ok, NotFound>> (Guid id, Order order, OrderDbContext db) =>
         {
             var affected = await db.Order
                 .Where(model => model.Id == id)
                 .ExecuteUpdateAsync(setters => setters
                     .SetProperty(m => m.Processed, order.Processed)
                     );
+            if (new Random().Next(100) > 70) { Task.Delay(10000).Wait(); }
             return affected == 1 ? TypedResults.Ok() : TypedResults.NotFound();
         })
         .WithName("UpdateOrder")
         .WithOpenApi();
 
-        group.MapPost("/", async (Order order, OrderDbContext db) =>
+        ordersGroup.MapPost("/", async (Order order, OrderDbContext db) =>
         {
             db.Order.Add(order);
             await db.SaveChangesAsync();

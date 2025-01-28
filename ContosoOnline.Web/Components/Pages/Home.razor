@@ -71,38 +71,35 @@
     {
         if (firstRender && !isInitialized)
         {
-            await RefreshCart();
+            await CreateNewCart();
             isInitialized = true;
             StateHasChanged();
         }
     }
 
-    private async Task RefreshCart()
-    {
-        var cartId = await GetCartIdFromLocalStorage();
-        if (cartId != Guid.Empty)
-        {
-            try
-            {
-                cart = await shoppingApiClient.GetCartAsync(cartId);
-            }
-            catch
-            {
-                await SetCartIdInLocalStorage(Guid.Empty);
-            }
-        }
-        else
-        {
-            cart = new Cart
-                {
-                    Id = Guid.NewGuid(),
-                    Started = DateTime.UtcNow
-                };
+    // private async Task RefreshCart()
+    // {
+    //     var cartId = await GetCartIdFromLocalStorage();
+    //     await RefreshCart(cartId);
+    // }
 
-            await shoppingApiClient.CreateCartAsync(cart);
-            await SetCartIdInLocalStorage(cart.Id);
-        }
+    private async Task RefreshCart(Guid cartId)
+    {
+        cart = await shoppingApiClient.GetCartAsync(cartId);
     }
+
+    private async Task CreateNewCart()
+    {
+        cart = new Cart
+            {
+                Id = Guid.NewGuid(),
+                Started = DateTime.UtcNow
+            };
+
+        await shoppingApiClient.CreateCartAsync(cart);
+        await SetCartIdInLocalStorage(cart.Id);
+    }
+
 
     private async Task AddToCart(CatalogItem product)
     {
@@ -117,11 +114,11 @@
                     Id = cart!.Items.First(x => x.ProductId == product.Id).Id,
                     CartId = cart.Id,
                     ProductId = product.Id,
-                    Quantity = cart.Items.First(i => i.ProductId == product.Id).Quantity + 1
+                    Quantity = cart.Items.First().Quantity + 1
                 });
         }
 
-        await RefreshCart();
+        await RefreshCart(cart.Id);
         StateHasChanged();
     }
 
@@ -138,8 +135,9 @@
 
     private async Task ClearCart()
     {
-        await SetCartIdInLocalStorage(Guid.Empty);
-        await RefreshCart();
+        var cartId = Guid.Empty;
+        await SetCartIdInLocalStorage(cartId);
+        await RefreshCart(cartId);
     }
 
     private async Task SubmitOrder()
@@ -153,6 +151,6 @@
 
         await shoppingApiClient.SubmitOrderAsync(order);
 
-        await ClearCart();
+        await CreateNewCart();
     }
 }
