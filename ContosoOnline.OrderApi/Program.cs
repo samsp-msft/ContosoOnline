@@ -18,6 +18,7 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+app.UseCustomMiddleware();
 app.MapDefaultEndpoints();
 
 // Configure the HTTP request pipeline.

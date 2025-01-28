@@ -12,7 +12,6 @@ public static class OrderEndpoints
 
         ordersGroup.MapGet("/", async (OrderDbContext db) =>
         {
-            if (new Random().Next(100) > 70) { Task.Delay(15000).Wait(); }
             return await db.Order.ToListAsync();
         })
         .WithName("GetAllOrders")
