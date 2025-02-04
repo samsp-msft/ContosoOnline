@@ -13,9 +13,10 @@ public class CustomMiddleware
 
     public async Task InvokeAsync(HttpContext context)
     {
-        if (requestCount++ > 3)
+        requestCount++;
+        if  ( context.Request.Method == "PUT"  )
         {
-            if (random.Next(100) > 70) { Task.Delay(random.Next(2000) * requestCount).Wait(); }
+            Task.Delay(random.Next(1000) * requestCount).Wait();
         }
         await _next(context);
     }

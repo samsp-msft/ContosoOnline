@@ -35,7 +35,6 @@ public static class OrderEndpoints
                 .ExecuteUpdateAsync(setters => setters
                     .SetProperty(m => m.Processed, order.Processed)
                     );
-            if (new Random().Next(100) > 70) { Task.Delay(10000).Wait(); }
             return affected == 1 ? TypedResults.Ok() : TypedResults.NotFound();
         })
         .WithName("UpdateOrder")
